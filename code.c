@@ -186,6 +186,32 @@ void scansequence(float oddsscore[Base][BUFSIZE])
     }
 }
 
+int GetRandom(void)
+{
+  int a,i,min=0,max=24314210;
+  char result[MAX_SEQ_NUM];
+  for(i=0;i<strlen(g_motif[0]);i++)
+  {
+    a=min + (int)(rand() * (max - min + 1.0) / (1.0 + RAND_MAX));
+    if(0<=a<7519429)
+    {
+      result[i]='A';
+    }
+    if(7519429<=a<15038858)
+    {
+      result[i]='T';
+    }if(15038858<=a<19676534)
+    {
+      result[i]='G';
+    }if(19676534<=a<24314210)
+    {
+      result[i]='C';
+    }
+  }
+  printf("%s\n",result);
+  
+}
+
 int main(int argc, char* argv[]){
   int seq_num = read_multi_seq(argv[1]); //１番目の引数で指定した転写因子の複数の結合部位配列を読み込む
   float oddsscore[Base][BUFSIZE];
@@ -204,8 +230,8 @@ int main(int argc, char* argv[]){
   }
 
   tablemaker(seq_num, g_motif, oddsscore);
-
   scansequence(oddsscore);
+  GetRandom();
 
 
   return 0;
