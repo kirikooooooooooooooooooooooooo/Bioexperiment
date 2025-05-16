@@ -7,6 +7,7 @@
 #define BUFSIZE 1024 //ファイルから読み込む一行の最大文字数
 #define MAX_SEQ_NUM 30 //一つの転写因子に対して与えられる結合部位配列の最大数
 #define MAX_GENE_NUM 8 /*与えられるプロモータ領域の最大遺伝子数*/
+#define Base 4
 
 char g_motif[MAX_SEQ_NUM][BUFSIZE]; //転写因子の結合部位配列を保存する配列
 
@@ -62,13 +63,12 @@ int read_promoter(char *filename){
   return gene_num;
 }
 
-void tablemaker(int seq_num, char A[MAX_SEQ_NUM][BUFSIZE])
+void tablemaker(int seq_num, char A[MAX_SEQ_NUM][BUFSIZE], float oddsscore[Base][BUFSIZE])
 {
     int i,j;
-    float qx[4]={7519429.0/24374210,4637676.0/24374210,4637676.0/24374210,7519429.0/24374210};
-    int a=strlen(A[0]);
-    float oddsscore[4][BUFSIZE]={0};
-    int number[4][BUFSIZE]={0};
+    float qx[Base]={7519429.0/24374210,4637676.0/24374210,4637676.0/24374210,7519429.0/24374210};
+    int number[Base][BUFSIZE]={0};
+    
     
     for(i=0;i<strlen(A[0]);i++)
     {
@@ -92,7 +92,7 @@ void tablemaker(int seq_num, char A[MAX_SEQ_NUM][BUFSIZE])
           }
         }
     }
-for(i=0;i<4;i++)
+for(i=0;i<Base;i++)
     {
       for(j=0;j<strlen(A[0]);j++)
       {
@@ -100,15 +100,15 @@ for(i=0;i<4;i++)
       }
     }
 
-    for(i=0;i<4;i++)
+    for(i=0;i<Base;i++)
     {
       for(j=0;j<strlen(A[0]);j++)
       {
-        printf("%d\n",number[i][j]);
+       // printf("%d\n",number[i][j]);
       }
 
     }
-    for(i=0;i<4;i++)
+    for(i=0;i<Base;i++)
     {
       for(j=0;j<strlen(A[0]);j++)
       {
@@ -118,19 +118,77 @@ for(i=0;i<4;i++)
     }
       
     
-    for(i=0;i<4;i++)
+    for(i=0;i<Base;i++)
     {
       for(j=0;j<strlen(A[0]);j++)
       {
-        printf("%f\n",oddsscore[i][j]);
+        printf("%f ",oddsscore[i][j]);
       }
-      
+      printf("\n");
+    }
+    printf("\n");
+  }
+
+void scansequence(float oddsscore[Base][BUFSIZE])
+{
+  int i,j,k,l;
+  float sum[8][BUFSIZE]={0};
+    for(j=0;j<8;j++)
+    {
+      float hit[10]={0};
+      int order=0;
+      for(k=0;k<strlen(g_pro[j].seq)-strlen(g_motif[0]);k++)
+      {
+        for(i=0;i<strlen(g_motif[0]);i++)
+        {
+          
+          if(g_pro[j].seq[k+i]=='T')
+          {
+            sum[j][k]+=oddsscore[3][i];
+          }
+          if(g_pro[j].seq[k+i]=='A')
+          {
+            sum[j][k]+=oddsscore[0][i];
+          }
+          if(g_pro[j].seq[k+i]=='C')
+          {
+            sum[j][k]+=oddsscore[1][i];
+          }
+          if(g_pro[j].seq[k+i]=='G')
+          {
+            sum[j][k]+=oddsscore[2][i];
+          }
+          
+        }
+        if(sum[j][k]>=6)
+          {
+
+            printf("pro:%s\n",g_pro[j].name);
+            printf("pos:%d\n",k);
+            printf("hit(");
+            for(l=k;l<k+strlen(g_motif[0]);l++)
+            {
+            printf("%c",g_pro[j].seq[l]);
+            }
+            printf(")= %f\n",sum[j][k]);
+            printf("\n");
+          }
+      }
+
+    }
+    for(j=0;j<8;j++)
+    {
+      for(k=0;k<strlen(g_pro[j].seq)-strlen(g_motif[0]);k++)
+      {
+       // printf("%f ",sum[j][k]);
+      }
+      //printf("\n");
     }
 }
 
 int main(int argc, char* argv[]){
   int seq_num = read_multi_seq(argv[1]); //１番目の引数で指定した転写因子の複数の結合部位配列を読み込む
-
+  float oddsscore[Base][BUFSIZE];
   printf("motif region:\n");
   for(int i = 0; i < seq_num; i++){
     printf("%s\n",g_motif[i]); //読み込んだ転写因子の結合部位配列を表示
@@ -145,7 +203,9 @@ int main(int argc, char* argv[]){
     printf("%s\n", g_pro[i].seq);
   }
 
-  tablemaker(seq_num, g_motif);
+  tablemaker(seq_num, g_motif, oddsscore);
+
+  scansequence(oddsscore);
 
 
   return 0;
