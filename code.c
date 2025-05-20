@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 
 #define BUFSIZE 1024 //ファイルから読み込む一行の最大文字数
 #define MAX_SEQ_NUM 30 //一つの転写因子に対して与えられる結合部位配列の最大数
@@ -10,6 +11,7 @@
 #define Base 4
 
 char g_motif[MAX_SEQ_NUM][BUFSIZE]; //転写因子の結合部位配列を保存する配列
+char randomresult[BUFSIZE];
 
 struct promoter{
   char name[BUFSIZE];
@@ -186,35 +188,43 @@ void scansequence(float oddsscore[Base][BUFSIZE])
     }
 }
 
-int GetRandom(void)
+void GetRandom(void)
 {
-  int a,i,min=0,max=24314210;
-  char result[MAX_SEQ_NUM];
-  for(i=0;i<strlen(g_motif[0]);i++)
+  srand((unsigned int)time( 0 ));
+  int a,i,j,min=0,max=24314210;
+  
+  float scorebox[BUFSIZE];
+  for(i=0;i<strlen(g_pro[0].seq);i++)
   {
     a=min + (int)(rand() * (max - min + 1.0) / (1.0 + RAND_MAX));
-    if(0<=a<7519429)
+    if(0<=a&&a<7519429)
     {
-      result[i]='A';
+      randomresult[i]='A';
     }
-    if(7519429<=a<15038858)
+    if(7519429<=a&&a<15038858)
     {
-      result[i]='T';
-    }if(15038858<=a<19676534)
+      randomresult[i]='T';
+    }if(15038858<=a&&a<19676534)
     {
-      result[i]='G';
-    }if(19676534<=a<24314210)
+      randomresult[i]='G';
+    }if(19676534<=a&&a<24314210)
     {
-      result[i]='C';
+      randomresult[i]='C';
     }
   }
-  printf("%s\n",result);
+  j=0;
+  while(randomresult[j]!='\0')
+  {
+    printf("%c",randomresult[j]);
+    j++;
+  }
   
 }
 
 int main(int argc, char* argv[]){
   int seq_num = read_multi_seq(argv[1]); //１番目の引数で指定した転写因子の複数の結合部位配列を読み込む
-  float oddsscore[Base][BUFSIZE];
+  float oddsscore[Base][BUFSIZE], randomoddsscore[Base][BUFSIZE];
+  char randomresult[BUFSIZE];
   printf("motif region:\n");
   for(int i = 0; i < seq_num; i++){
     printf("%s\n",g_motif[i]); //読み込んだ転写因子の結合部位配列を表示
@@ -232,6 +242,7 @@ int main(int argc, char* argv[]){
   tablemaker(seq_num, g_motif, oddsscore);
   scansequence(oddsscore);
   GetRandom();
+  tablemaker(seq_num, g_motif, randomoddsscore);
 
 
   return 0;
