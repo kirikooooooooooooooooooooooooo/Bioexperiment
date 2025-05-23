@@ -162,7 +162,7 @@ void scansequence(float oddsscore[Base][BUFSIZE])
           }
           
         }
-        if(sum[j][k]>=6)
+        if(sum[j][k]>=N)
           {
 
             printf("pro:%s\n",g_pro[j].name);
@@ -187,6 +187,47 @@ void scansequence(float oddsscore[Base][BUFSIZE])
       //printf("\n");
     }
 }
+
+void scansequence2(float oddsscore[Base][BUFSIZE])
+{
+  int i,k,l;
+  float sum[BUFSIZE]={0};
+      float hit[10]={0};
+      int order=0;
+      for(k=0;k<strlen(randomresult)-strlen(g_motif[0]);k++)
+      {
+        for(i=0;i<strlen(g_motif[0]);i++)
+        {
+          
+          if(randomresult[i+k]=='T')
+          {
+            sum[k]+=oddsscore[3][i];
+          }
+          if(randomresult[i+k]=='A')
+          {
+            sum[k]+=oddsscore[0][i];
+          }
+          if(randomresult[i+k]=='C')
+          {
+            sum[k]+=oddsscore[1][i];
+          }
+          if(randomresult[i+k]=='G')
+          {
+            sum[k]+=oddsscore[2][i];
+          }
+          
+        }
+      printf("%f\n", sum[k]);
+
+    
+         
+           
+          
+      }
+
+    }
+    
+
 
 void GetRandom(void)
 {
@@ -218,6 +259,7 @@ void GetRandom(void)
     printf("%c",randomresult[j]);
     j++;
   }
+  printf("\n");
   
 }
 
@@ -241,8 +283,9 @@ int main(int argc, char* argv[]){
 
   tablemaker(seq_num, g_motif, oddsscore);
   scansequence(oddsscore);
-  GetRandom();
-  tablemaker(seq_num, g_motif, randomoddsscore);
+  //GetRandom();
+  //scansequence2(oddsscore);
+  
 
 
   return 0;
